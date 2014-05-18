@@ -79,9 +79,9 @@
         };
 
         window.document.addEventListener("touchmove", preventDefaultScroll, false);
-        var count = 0;
+        var count = 10;
         var isDown = false;
-		var bpm = 0;
+		var bpm = 120;
 		var myVar=setInterval(function(){myTimer()},5000);
 
         function myTimer() {
@@ -145,7 +145,8 @@
         // The supplied track can be found in the audio subdirectory.
         var apiKey = 'PXNLPNTKCK8PKHIXL';
         var trackID = 'TRCYWPQ139279B3308';
-        var trackURL = 'http://echorunner.parseapp.com/2.wav'
+//        var trackURL = 'http://echorunner.parseapp.com/2.wav';
+        var trackURL = 'http://echorunner.parseapp.com/1.wav';
 
         var remixer;
         var player;
