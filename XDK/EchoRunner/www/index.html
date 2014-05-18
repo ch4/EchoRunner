@@ -1,4 +1,4 @@
-<!DOCTYPE html><!--HTML5 doctype-->
+﻿<!DOCTYPE html><!--HTML5 doctype-->
 <html>
 <head>
 	<title>Your New Application</title>
@@ -13,6 +13,7 @@
     <script src="jquery-2.1.1.min.js"></script>
     <script src="remix.js"></script>
 	<script src='intelxdk.js'></script>
+    <script src="soundtouch.js"></script>
 	<script type="text/javascript">
 		/* Intel native bridge is available */
 		var onDeviceReady=function(){
@@ -120,16 +121,51 @@
         // The supplied track can be found in the audio subdirectory.
         var apiKey = 'PXNLPNTKCK8PKHIXL';
         var trackID = 'TRCYWPQ139279B3308';
-        var trackURL = 'http://echonest.github.io/remix/js/examples/audio/1451_-_D.mp3'
+        var trackURL = 'http://echorunner.parseapp.com/2.wav'
 
         var remixer;
         var player;
         var track;
-        var remixed;
-        
-        
-        
+        var remixed;        
 	</script>
+    
+    <script type="text/javascript">
+        var context = new webkitAudioContext();
+        var buffer, node, st;
+
+        loadSample = function(url) {
+            var request = new XMLHttpRequest();
+            request.open('GET', url, true);
+            request.responseType = 'arraybuffer';
+
+            request.onload = function() {
+                buffer = context.createBuffer(request.response, false);
+
+                st = new soundtouch.SoundTouch();
+                st.tempo = 1;
+                var filter = new soundtouch.SimpleFilter(new soundtouch.WebAudioBufferSource(buffer), st);
+                node = soundtouch.getWebAudioNode(context, filter);
+            };
+            request.send();
+        };
+
+        function load() {
+            loadSample('2.wav');
+        }
+        function play() {
+            node.connect(context.destination);
+        }
+        function pause() {
+            node.disconnect();
+        }
+        function IncreaseTempo() {
+            st.tempo = 1.25;
+        }
+        function DecreaseTempo() {
+            st.tempo = 0.75;
+        }
+
+    </script>
 </head>
 <body>
 	<!-- content goes here-->
@@ -137,7 +173,14 @@
     <button onclick="IncreaseCount()">Count++</button>
     <button onclick="DecreaseCount()">Count--</button>
     <div id='info'> </div>
+<!--
     <button onClick="player.play(0, remixed);">Play!</button>
     <button onClick="player.stop()">Stop!</button>
+-->
+    <button onclick="load()">Load</button>
+    <button onclick="play()">Play test</button>
+    <button onclick="pause()">Pause test</button>
+    <button onclick="IncreaseTempo()">Faster</button>
+    <button onclick="DecreaseTempo()">Slower</button>
 </body>
 </html>

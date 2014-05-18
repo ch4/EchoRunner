@@ -1,9 +1,43 @@
+<script src="soundtouch.js"></script>
+<script type="text/javascript">
+var context = new webkitAudioContext();
+var buffer, node, st;
 
-<html>
-  <head>
-    <title>My ParseApp site</title>
-  </head>
-  <body>
-    Hello World!
-  </body>
-</html>
+loadSample = function(url) {
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = 'arraybuffer';
+
+    request.onload = function() {
+        buffer = context.createBuffer(request.response, false);
+
+        st = new soundtouch.SoundTouch();
+        st.tempo = 1;
+        var filter = new soundtouch.SimpleFilter(new soundtouch.WebAudioBufferSource(buffer), st);
+        node = soundtouch.getWebAudioNode(context, filter);
+    };
+    request.send();
+};
+
+function load() {
+    loadSample('2.wav');
+}
+function play() {
+    node.connect(context.destination);
+}
+function pause() {
+    node.disconnect();
+}
+function IncreaseTempo() {
+    st.tempo = 1.25;
+}
+function DecreaseTempo() {
+    st.tempo = 0.75;
+}
+
+</script>
+<button onclick="load()">Load</button>
+<button onclick="play()">Play test</button>
+<button onclick="pause()">Pause test</button>
+<button onclick="IncreaseTempo()">Faster</button>
+<button onclick="DecreaseTempo()">Slower</button>
