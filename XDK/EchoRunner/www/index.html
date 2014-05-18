@@ -10,18 +10,76 @@
 		input, textarea  { -webkit-user-select:text; }
 		body { background-color:white; color:black }
 	</style>
+    <script src="jquery-2.1.1.min.js"></script>
 	<script src='intelxdk.js'></script>
 	<script type="text/javascript">
 		/* Intel native bridge is available */
 		var onDeviceReady=function(){
-		//hide splash screen
-		intel.xdk.device.hideSplashScreen();
+            //lock orientation
+            intel.xdk.device.setRotateOrientation("portrait");
+            intel.xdk.device.setAutoRotate(false);
+
+            //manage power
+            intel.xdk.device.managePower(true,false);
+
+            //hide splash screen
+            intel.xdk.device.hideSplashScreen();      
+
+            //Watch acceleration
+            intel.xdk.accelerometer.watchAcceleration(onsuccess, options);  
 		};
 		document.addEventListener("intel.xdk.device.ready",onDeviceReady,false);
+        
+        // Prevent Default Scrolling  
+        var preventDefaultScroll = function(event) 
+        {
+            // Prevent scrolling on this element
+            event.preventDefault();
+            window.scroll(0,0);
+            return false;
+        };
+
+        window.document.addEventListener("touchmove", preventDefaultScroll, false);
+        var count = 0;
+        var isDown = false;
+        //function that modifies the position of the arrow
+        function onsuccess(acceleration) 
+        {
+            var Acceleration_X = acceleration.x;
+            var Acceleration_Y = acceleration.y;
+            //var arrow = document.getElementById("imagearrow");
+            var rotation_anglex = Math.round(Acceleration_X* 10) / 10;
+
+            if(Acceleration_X>0.05) //downstroke (phone negative g) //|| Acceleration_X<0)
+            {
+                isDown = true;
+                //$('#count').text(count);
+            }
+            if(Acceleration_X<0.05) //upstroke (phone positive g) //|| Acceleration_X<0)
+            {
+                if(isDown){
+                    isDown = false;
+                    count++;
+                    $('#count').text(count);
+                }
+            }
+
+        }
+
+        //Options for watch accelaration
+        var options = { frequency: 150, adjustForRotation: false }; 
+        
+        function IncreaseCount(){
+            
+            //count = $('#id').val();
+            count++;
+            $('#count').text(count.toString());
+        }
 	</script>
 </head>
 <body>
 	<!-- content goes here-->
-    Hello
+    <div><p id="count">0</p></div>
+    <button onclick="IncreaseCount()">Count++</button>
 </body>
 </html>
