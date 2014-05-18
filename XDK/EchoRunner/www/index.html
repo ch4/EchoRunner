@@ -11,6 +11,7 @@
 		body { background-color:white; color:black }
 	</style>
     <script src="jquery-2.1.1.min.js"></script>
+    <script src="remix.js"></script>
 	<script src='intelxdk.js'></script>
 	<script type="text/javascript">
 		/* Intel native bridge is available */
@@ -27,8 +28,43 @@
 
             //Watch acceleration
             intel.xdk.accelerometer.watchAcceleration(onsuccess, options);  
+            
+            //call echonest init
+            EchonestInit();
 		};
 		document.addEventListener("intel.xdk.device.ready",onDeviceReady,false);
+        
+        function EchonestInit() {
+            if (window.webkitAudioContext === undefined) {
+                error("Sorry, this app needs advanced web audio. Your browser doesn't"
+                    + " support it. Try the latest version of Chrome");
+            } else {
+                var context = new webkitAudioContext();
+                remixer = createJRemixer(context, $, apiKey);
+                player = remixer.getPlayer();
+                $("#info").text("Loading analysis data...");
+
+                remixer.remixTrackById(trackID, trackURL, function(t, percent) {
+                    track = t;
+
+                    $("#info").text(percent + "% of the track loaded");
+                    if (percent == 100) {
+                        $("#info").text(percent + "% of the track loaded, remixing...");
+                    }
+
+                    if (track.status == 'ok') {
+                        remixed = new Array();
+                        // Do the remixing here!
+                        for (var i=0; i < track.analysis.beats.length; i++) {
+                            if (i % 4 == 0) {
+                                remixed.push(track.analysis.beats[i])
+                            }
+                        }
+                        $("#info").text("Remix complete!");
+                    }
+                });
+            }
+        }
         
         // Prevent Default Scrolling  
         var preventDefaultScroll = function(event) 
@@ -50,18 +86,17 @@
             //var arrow = document.getElementById("imagearrow");
             var rotation_anglex = Math.round(Acceleration_X* 10) / 10;
 
-            if(Acceleration_X>0.05) //downstroke (phone negative g) //|| Acceleration_X<0)
+            if(Acceleration_Y>0.025) //downstroke (phone negative g) //|| Acceleration_X<0)
             {
-                isDown = true;
+                if(!isDown){
+                    isDown = true;
+                    IncreaseCount();
+                }
                 //$('#count').text(count);
             }
-            if(Acceleration_X<0.05) //upstroke (phone positive g) //|| Acceleration_X<0)
+            if(Acceleration_Y<0.025) //upstroke (phone positive g) //|| Acceleration_X<0)
             {
-                if(isDown){
-                    isDown = false;
-                    count++;
-                    $('#count').text(count);
-                }
+                isDown = false;
             }
 
         }
@@ -70,16 +105,39 @@
         var options = { frequency: 150, adjustForRotation: false }; 
         
         function IncreaseCount(){
-            
             //count = $('#id').val();
             count++;
-            $('#count').text(count.toString());
+            $('#count').text(count);
         }
+        function DecreaseCount(){
+            //count = $('#id').val();
+            count--;
+            $('#count').text(count);
+        }
+        
+        // First-beat extraction and assembly
+        // You will need to supply your Echo Nest API key, the trackID, and a URL to the track.
+        // The supplied track can be found in the audio subdirectory.
+        var apiKey = 'PXNLPNTKCK8PKHIXL';
+        var trackID = 'TRCYWPQ139279B3308';
+        var trackURL = 'http://echonest.github.io/remix/js/examples/audio/1451_-_D.mp3'
+
+        var remixer;
+        var player;
+        var track;
+        var remixed;
+        
+        
+        
 	</script>
 </head>
 <body>
 	<!-- content goes here-->
     <div><p id="count">0</p></div>
     <button onclick="IncreaseCount()">Count++</button>
+    <button onclick="DecreaseCount()">Count--</button>
+    <div id='info'> </div>
+    <button onClick="player.play(0, remixed);">Play!</button>
+    <button onClick="player.stop()">Stop!</button>
 </body>
 </html>
