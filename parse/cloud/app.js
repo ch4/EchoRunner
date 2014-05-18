@@ -46,7 +46,7 @@ app.get('/getbpm', function (req, res) {
     query.find({
         success: function (queryList) {
             // The object was retrieved successfully.
-            res.end(JSON.stringify(queryList[0]));
+            res.end(queryList[0].get('bpm'));
         },
         error: function (object, error) {
             // The object was not retrieved successfully.
@@ -90,14 +90,14 @@ app.get('/checkskiptrack', function (req, res) {
             var skip = skipBoolArray[0];
 
             if (skip.get('skip') == false) {
-                res.end('{"skip" : "false"}');
+                res.end('false');
             }
 
             if (skip.get('skip') == true) {
                 skip.set("skip", false);
                 skip.save(null, {
                     success: function (appList) {
-                        res.end('{"skip" : "true"}');
+                        res.end('true');
                     },
                     error: function (object, error) {
                         // The object was not retrieved successfully.
