@@ -40,10 +40,12 @@
                 error("Sorry, this app needs advanced web audio. Your browser doesn't"
                     + " support it. Try the latest version of Chrome");
             } else {
-                var context = new webkitAudioContext();
-                remixer = createJRemixer(context, $, apiKey);
+                var context2 = new webkitAudioContext();
+                remixer = createJRemixer(context2, $, apiKey);
                 player = remixer.getPlayer();
                 $("#info").text("Loading analysis data...");
+                
+                load();
 
                 remixer.remixTrackById(trackID, trackURL, function(t, percent) {
                     track = t;
@@ -56,11 +58,11 @@
                     if (track.status == 'ok') {
                         remixed = new Array();
                         // Do the remixing here!
-                        for (var i=0; i < track.analysis.beats.length; i++) {
-                            if (i % 4 == 0) {
-                                remixed.push(track.analysis.beats[i])
-                            }
-                        }
+//                        for (var i=0; i < track.analysis.beats.length; i++) {
+//                            if (i % 4 == 0) {
+//                                remixed.push(track.analysis.beats[i])
+//                            }
+//                        }
                         $("#info").text("Remix complete!");
                     }
                 });
@@ -79,6 +81,26 @@
         window.document.addEventListener("touchmove", preventDefaultScroll, false);
         var count = 0;
         var isDown = false;
+		var bpm = 0;
+		var myVar=setInterval(function(){myTimer()},5000);
+
+        function myTimer() {
+            bpm += count * 12;
+            bpm = bpm / 2;
+			count = 0;
+            $('#count').text(count);
+            $('#bpm').text(bpm);
+            
+            if(bpm > (track.audio_summary.tempo*1.25)) {
+                IncreaseTempo();
+            } else if(bpm < (track.audio_summary.tempo*0.75)) {
+                DecreaseTempo();
+            } else {
+                st.tempo = 1;
+            }
+        }
+        
+		
         //function that modifies the position of the arrow
         function onsuccess(acceleration) 
         {
@@ -109,11 +131,13 @@
             //count = $('#id').val();
             count++;
             $('#count').text(count);
+			//$('#bpm').text(bpm);
         }
         function DecreaseCount(){
             //count = $('#id').val();
             count--;
             $('#count').text(count);
+			//$('#bpm').text(bpm);
         }
         
         // First-beat extraction and assembly
@@ -150,7 +174,7 @@
         };
 
         function load() {
-            loadSample('2.wav');
+            loadSample(trackURL);
         }
         function play() {
             node.connect(context.destination);
@@ -170,6 +194,7 @@
 <body>
 	<!-- content goes here-->
     <div><p id="count">0</p></div>
+	<div><p id="bpm">0</p></div>
     <button onclick="IncreaseCount()">Count++</button>
     <button onclick="DecreaseCount()">Count--</button>
     <div id='info'> </div>
