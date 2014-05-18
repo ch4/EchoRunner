@@ -1,23 +1,28 @@
-console.log('Simply.js demo!');
+//console.log('Simply.js demo!');
 
-simply.on('singleClick', function(e) {
-  console.log(util2.format('single clicked $button!', e));
-  simply.subtitle('Pressed ' + e.button + '!');
+simply.on('singleClick', function (e) {
+    //console.log(util2.format('single clicked $button!', e));
+    //simply.subtitle('Pressed ' + e.button + '!');
+    if (e.button == 'up') {
+        ajax({ url: 'http://echorunner.parseapp.com/getbpm' }, function (data) {
+            //var headline = data.match(/<h1>(.*?)<\/h1>/)[1];
+            simply.title("BPM: " + data);
+            simply.subtitle("");
+        });
+
+    }
+    if (e.button == 'down') {
+        ajax({ url: 'http://echorunner.parseapp.com/skiptrack' }, function (data) {
+            //var headline = data.match(/<h1>(.*?)<\/h1>/)[1];
+            simply.subtitle("Track skipped");
+        });
+    }
+
 });
 
-simply.on('longClick', function(e) {
-  console.log(util2.format('long clicked $button!', e));
-  simply.vibe();
-  simply.scrollable(e.button !== 'select');
-});
-
-simply.on('accelTap', function(e) {
-  console.log(util2.format('tapped accel axis $axis $direction!', e));
-  simply.subtitle('Tapped ' + (e.direction > 0 ? '+' : '-') + e.axis + '!');
-});
 
 simply.setText({
-  title: 'Simply Demo!',
-  body: 'This is a demo. Press buttons or tap the watch!',
+    title: 'EchoRunner',
+    body: 'Press UP to update BPM, DOWN to skip track',
 }, true);
 
